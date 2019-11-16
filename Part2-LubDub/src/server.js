@@ -13,33 +13,38 @@ var meanHeartRate = 0;
 var medianHeartRate = 0;
 var heartRates = []
 
+
+// this function will add the query to addData router
 const appendQuery = (req, res, next) => {
-    let par = parseInt(req.query.heartRate,10)
-    if(par != NaN){
+    let par = parseInt(req.query.heartRate, 10)
+    if (Object.keys(req.query).length != 0) {
         heartRates.push(par)
     }
     next();
 }
 app.get('/addData', appendQuery, express.query(), (req, res) => {
     console.log(heartRates)
-    minimumHeartRate = Math.min(...heartRates);
-    console.log(minimumHeartRate)
-    maximumHeartRate = Math.max(...heartRates);
-    let sum = 0;
-    for(let i =0;i<heartRates.length;i++){
-        sum += heartRates[i];
+    if (heartRates.length > 0) {
+        minimumHeartRate = Math.min(...heartRates);
+        console.log(minimumHeartRate)
+        maximumHeartRate = Math.max(...heartRates);
+        let sum = 0;
+        for (let i = 0; i < heartRates.length; i++) {
+            sum += heartRates[i];
+        }
+        meanHeartRate = sum / heartRates.length;
+        heartRates.sort(function (a, b) {
+            return a - b;
+        });
+
+        var mid = Math.floor(heartRates.length / 2);
+
+        if (heartRates.length % 2)
+            medianHeartRate = heartRates[mid];
+
+        medianHeartRate = (heartRates[mid - 1] + heartRates[mid]) / 2.0;
     }
-    meanHeartRate = sum/heartRates.length;
-    heartRates.sort(function (a, b) {
-        return a - b;
-    });
 
-    var mid = Math.floor(heartRates.length / 2);
-
-    if (heartRates.length % 2)
-        medianHeartRate = heartRates[mid];
-
-    medianHeartRate = (heartRates[mid - 1] + heartRates[mid]) / 2.0;
     res.send("get and appended");
     console.log(req.query);
 })
